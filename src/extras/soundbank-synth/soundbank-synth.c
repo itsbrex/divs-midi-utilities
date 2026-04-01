@@ -45,10 +45,18 @@ static void usage(char *program_name)
 	exit(1);
 }
 
+static int string_ends_with(char *str, char *suffix)
+{
+	if (str == NULL || suffix == NULL) return 0;
+	int str_len = strlen(str);
+	int suffix_len = strlen(suffix);
+	return ((str_len >= suffix_len) && (strcmp(str + str_len - suffix_len, suffix) == 0));
+}
+
 static int load_soundbank(char *soundbank_filename)
 {
 #ifdef USE_SFIZZ
-	if (sfizz_load_file(sfizz_synth, soundbank_filename))
+	if (string_ends_with(soundbank_filename, ".sfz") && sfizz_load_file(sfizz_synth, soundbank_filename))
 	{
 		synth_engine = SYNTH_ENGINE_SFIZZ;
 		return 1;
