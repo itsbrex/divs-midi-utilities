@@ -22,11 +22,9 @@ typedef enum
 	SYNTH_ENGINE_NONE,
 	SYNTH_ENGINE_SFIZZ,
 	SYNTH_ENGINE_FLUIDSYNTH
-
 }
 SynthEngine_t;
 
-// We're failing to protect this explicitly for thread safety, but the access pattern should be harmless.
 SynthEngine_t synth_engine = SYNTH_ENGINE_NONE;
 
 #ifdef USE_SFIZZ
@@ -293,6 +291,14 @@ static void handle_midi_message(double timestamp, const unsigned char *message, 
 
 static int compute_audio_buffer(const void *input, void *output, unsigned long number_of_frames, const PaStreamCallbackTimeInfo *time_info, PaStreamCallbackFlags status_flags, void *user_data)
 {
+	while (1)
+	{
+		unsigned char message[1024];
+		size_t message_size = 1024;
+		if (rtmidi_in_get_message(midi_in, message, &message_size) <= 0) break;
+		handle_midi_message(0, message, message_size, NULL);
+	}
+
 	float *left_output = ((float **)(output))[0];
 	float *right_output = ((float **)(output))[1];
 
@@ -397,7 +403,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if ((midi_in = rtmidi_open_in_port("soundbank-synth", midi_in_port, "soundbank-synth", handle_midi_message, NULL)) == NULL)
+	if ((midi_in = rtmidi_open_in_port("soundbank-synth", midi_in_port, "soundbank-synth", NULL, NULL)) == NULL)
 	{
 		fprintf(stderr, "Error:  Cannot open MIDI input port \"%s\".\n", midi_in_port);
 		exit(1);
