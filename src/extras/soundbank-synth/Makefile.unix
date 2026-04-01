@@ -2,9 +2,9 @@
 ifeq ("$(shell uname -s)", "Darwin")
 CC=gcc
 CXX=g++
-CFLAGS=-D__MACOSX_CORE__ -DUSE_FLUIDSYNTH -I/opt/homebrew/include
-LDFLAGS=-L/opt/homebrew/lib
-LIBS=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation -lstdc++ -lportaudio -lfluidsynth
+CFLAGS=-D__MACOSX_CORE__ -DUSE_SFIZZ -DUSE_FLUIDSYNTH -I/opt/homebrew/include
+LDFLAGS=-L/opt/homebrew/lib -rpath /usr/local/lib
+LIBS=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation -lstdc++ -lportaudio -lsfizz -lfluidsynth
 else
 CC=gcc
 CXX=g++

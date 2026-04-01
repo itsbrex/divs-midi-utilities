@@ -26,6 +26,7 @@ typedef enum
 }
 SynthEngine_t;
 
+// We're failing to protect this explicitly for thread safety, but the access pattern should be harmless.
 SynthEngine_t synth_engine = SYNTH_ENGINE_NONE;
 
 #ifdef USE_SFIZZ
@@ -300,7 +301,7 @@ static int compute_audio_buffer(const void *input, void *output, unsigned long n
 		case SYNTH_ENGINE_SFIZZ:
 		{
 #ifdef USE_SFIZZ
-			sfizz_render_block(sfizz_synth, (float **)(output), 2, number_of_frames)
+			sfizz_render_block(sfizz_synth, (float **)(output), 2, number_of_frames);
 #endif
 			break;
 		}
@@ -378,7 +379,7 @@ int main(int argc, char **argv)
 #ifdef USE_SFIZZ
 	sfizz_synth = sfizz_create_synth();
 	sfizz_set_sample_rate(sfizz_synth, sample_rate);
-	sfizz_set_samples_per_block(sfizz_synth, block_size);
+	sfizz_set_samples_per_block(sfizz_synth, buffer_size);
 #endif
 
 #ifdef USE_FLUIDSYNTH
