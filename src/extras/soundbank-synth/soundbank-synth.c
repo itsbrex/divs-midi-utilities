@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 
 	if (soundbank_filename != NULL)
 	{
-		if (load_soundbank(soundbank_filename) < 0)
+		if (!load_soundbank(soundbank_filename))
 		{
 			fprintf(stderr, "Error:  Cannot load soundbank \"%s\".\n", soundbank_filename);
 			exit(1);
