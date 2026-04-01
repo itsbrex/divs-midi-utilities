@@ -41,7 +41,7 @@ PaStream *audio_out;
 
 static void usage(char *program_name)
 {
-	fprintf(stderr, "Usage: %s --in <port> [ --sample-rate <default: 44100> ] [ --buffer-size <default: 256> ] [ --soundbank <filename> ]\n", program_name);
+	fprintf(stderr, "Usage: %s --in <port> [ --sample-rate <default: 44100> ] [ --buffer-size <default: 256> ] [ --soundbank <filename> ] [ --program <number> ]\n", program_name);
 	exit(1);
 }
 
@@ -359,6 +359,7 @@ int main(int argc, char **argv)
 	int sample_rate = 44100;
 	int buffer_size = 256;
 	char *soundbank_filename = NULL;
+	int program_number = -1;
 
 	for (i = 1; i < argc; i++)
 	{
@@ -381,6 +382,11 @@ int main(int argc, char **argv)
 		{
 			if (++i == argc) usage(argv[0]);
 			soundbank_filename = argv[i];
+		}
+		else if (strcmp(argv[i], "--program") == 0)
+		{
+			if (++i == argc) usage(argv[0]);
+			program_number = atol(argv[i]);
 		}
 		else
 		{
@@ -411,6 +417,13 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 	}
+
+#ifdef USE_FLUIDSYNTH
+	if (program_number >= 0)
+	{
+		fluid_synth_program_change(fluidsynth_synth, 0, program_number);
+	}
+#endif
 
 	if ((midi_in = rtmidi_open_in_port("soundbank-synth", midi_in_port, "soundbank-synth", NULL, NULL)) == NULL)
 	{
