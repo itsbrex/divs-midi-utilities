@@ -399,6 +399,7 @@ int main(int argc, char **argv)
 #ifdef USE_FLUIDSYNTH
 	fluidsynth_settings = new_fluid_settings();
 	fluid_settings_setnum(fluidsynth_settings, "synth.sample-rate", sample_rate);
+	fluid_settings_setnum(fluidsynth_settings, "synth.gain", 0.9);
 	fluidsynth_synth = new_fluid_synth(fluidsynth_settings);
 #endif
 
