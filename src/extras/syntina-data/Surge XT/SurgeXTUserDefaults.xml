@@ -1,5 +1,4 @@
 <?xml version = "1.0" encoding = "UTF-8" ?>
-<!-- User Defaults for Surge XT Synthesizer -->
 <defaults version="1">
   <default key="defaultSkin" value="Teal.surge-skin/" type="1"/>
   <default key="defaultSkinRootType" value="2" type="2"/>
