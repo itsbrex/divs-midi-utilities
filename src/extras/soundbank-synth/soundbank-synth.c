@@ -111,6 +111,8 @@ static void handle_midi_message(double timestamp, const unsigned char *message, 
 
 				break;
 			}
+
+			break;
 		}
 		case MIDI_UTIL_MESSAGE_TYPE_NOTE_ON:
 		{

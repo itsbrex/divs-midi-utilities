@@ -8,9 +8,9 @@ LIBS=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation -lstdc++
 else
 CC=gcc
 CXX=g++
-CFLAGS=-D__LINUX_ALSA__ -DRTMIDI_DO_NOT_ENSURE_UNIQUE_PORTNAMES
+CFLAGS=-D__LINUX_ALSA__ -DRTMIDI_DO_NOT_ENSURE_UNIQUE_PORTNAMES -DUSE_SFIZZ -DUSE_FLUIDSYNTH
 LDFLAGS=
-LIBS=-lasound -lpthread -lstdc++
+LIBS=-lasound -lpthread -lstdc++ -lportaudio -lsfizz -lfluidsynth
 endif
 
 ../../../bin/soundbank-synth: soundbank-synth.o midiutil-common.o midiutil-system.o midiutil-rtmidi.o RtMidi.o rtmidi_c.o
