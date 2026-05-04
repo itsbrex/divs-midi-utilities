@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <rtmidi_c.h>
 #include <midiutil-common.h>
@@ -73,5 +74,17 @@ void MidiOut_sendPitchBend(MidiOut_t midi_out, int channel, int amount)
 	unsigned char message[MIDI_UTIL_MESSAGE_SIZE_PITCH_WHEEL];
 	MidiUtilMessage_setPitchWheel(message, channel, amount);
 	rtmidi_out_send_message(midi_out->rtmidi_out, message, MIDI_UTIL_MESSAGE_SIZE_PITCH_WHEEL);
+}
+
+void MidiOut_sendLoadSoundbankSysex(MidiOut_t midi_out, char *soundbank_filename)
+{
+	if ((midi_out == NULL) || (soundbank_filename == NULL)) return;
+	int soundbank_filename_length = strlen(soundbank_filename);
+	unsigned char message[1024];
+	message[0] = 0xF0;
+	message[1] = 0x7D;
+	memcpy(message + 2, soundbank_filename, soundbank_filename_length);
+	message[soundbank_filename_length + 2] = 0xF7;
+	rtmidi_out_send_message(midi_out->rtmidi_out, message, soundbank_filename_length + 3);
 }
 

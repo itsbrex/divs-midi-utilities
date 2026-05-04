@@ -193,6 +193,13 @@ void SyntinaDriver_loadPreset(SyntinaDriver_t syntina_driver, const char *preset
 		SyntinaDriver_loadPreset(syntina_driver, include_preset_name);
 	}
 
+	json_t *soundbank_json = json_object_get(preset_json, "soundbank");
+
+	if (soundbank_json)
+	{
+		MidiOut_sendLoadSoundbankSysex(syntina_driver->midi_out, json_string_value(soundbank_json));
+	}
+
 	json_t *program_json = json_object_get(preset_json, "program");
 
 	if (program_json)

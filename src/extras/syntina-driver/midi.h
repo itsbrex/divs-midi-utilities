@@ -9,5 +9,6 @@ void MidiOut_sendNoteOff(MidiOut_t midi_out, int channel, int note, int velocity
 void MidiOut_sendControlChange(MidiOut_t midi_out, int channel, int number, int value);
 void MidiOut_sendProgramChange(MidiOut_t midi_out, int channel, int number);
 void MidiOut_sendPitchBend(MidiOut_t midi_out, int channel, int amount);
+void MidiOut_sendLoadSoundbankSysex(MidiOut_t midi_out, char *soundbank_filename);
 
 #endif
