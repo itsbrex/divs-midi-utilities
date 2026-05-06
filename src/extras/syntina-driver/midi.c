@@ -10,30 +10,31 @@
 
 struct MidiOut
 {
+	// a little gratuitous to wrap it, but provides some abstraction
 	RtMidiOutPtr rtmidi_out;
 };
 
 MidiOut_t MidiOut_open(char *port_name)
 {
-	MidiOut_t midi_out = (MidiOut_t)(malloc(sizeof (struct MidiOut)));
+	RtMidiOutPtr rtmidi_out = rtmidi_open_out_port("syntina", (char *)(port_name), "syntina");
 
-	while (1)
+	if (rtmidi_out == NULL)
 	{
-		midi_out->rtmidi_out = rtmidi_open_out_port("syntina", port_name, "syntina");
-
-		if (midi_out->rtmidi_out != NULL)
-		{
-			fprintf(stderr, "Info: connected to MIDI output %s\n", port_name);
-			return midi_out;
-		}
-
-		sleep(0.5);
+		fprintf(stderr, "Warning: failed to open MIDI port %s\n", port_name);
+		return NULL;
 	}
+
+	MidiOut_t midi_out = (MidiOut_t)(malloc(sizeof (struct MidiOut)));
+	midi_out->rtmidi_out = rtmidi_out;
+	return midi_out;
 }
 
 void MidiOut_close(MidiOut_t midi_out)
 {
+	if (midi_out == NULL) return;
 	rtmidi_close_port(midi_out->rtmidi_out);
+	rtmidi_out_free(midi_out->rtmidi_out);
+	free(midi_out);
 }
 
 void MidiOut_sendNoteOn(MidiOut_t midi_out, int channel, int note, int velocity)

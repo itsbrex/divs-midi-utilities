@@ -127,10 +127,10 @@ struct SyntinaDriver
 	int fine_down_count;
 };
 
-SyntinaDriver_t SyntinaDriver_new(char *midi_out_port_name, char *config_filename)
+SyntinaDriver_t SyntinaDriver_new(char *config_filename)
 {
 	SyntinaDriver_t syntina_driver = (SyntinaDriver_t)(malloc(sizeof (struct SyntinaDriver)));
-	syntina_driver->midi_out = MidiOut_open(midi_out_port_name);;
+	syntina_driver->midi_out = NULL;
 	syntina_driver->config = json_load_file(config_filename, 0, NULL);
 	if (syntina_driver->config == NULL) fprintf(stderr, "Warning: cannot load config file \"%s\"\n", config_filename);
 	syntina_driver->left_keyboard = Keyboard_openLeft();
@@ -193,11 +193,19 @@ void SyntinaDriver_loadPreset(SyntinaDriver_t syntina_driver, const char *preset
 		SyntinaDriver_loadPreset(syntina_driver, include_preset_name);
 	}
 
+	json_t *midi_out_json = json_object_get(preset_json, "midi-out");
+
+	if (midi_out_json)
+	{
+		MidiOut_close(syntina_driver->midi_out);
+		syntina_driver->midi_out = MidiOut_open((char *)(json_string_value(midi_out_json)));
+	}
+
 	json_t *soundbank_json = json_object_get(preset_json, "soundbank");
 
 	if (soundbank_json)
 	{
-		MidiOut_sendLoadSoundbankSysex(syntina_driver->midi_out, json_string_value(soundbank_json));
+		MidiOut_sendLoadSoundbankSysex(syntina_driver->midi_out, (char *)(json_string_value(soundbank_json)));
 	}
 
 	json_t *program_json = json_object_get(preset_json, "program");
@@ -669,23 +677,17 @@ void SyntinaDriver_run(SyntinaDriver_t syntina_driver)
 
 static void usage(char *program_name)
 {
-	fprintf(stderr, "Usage: %s --out <port> --config <syntina-driver.conf>\n", program_name);
+	fprintf(stderr, "Usage: %s --config <syntina-driver.conf>\n", program_name);
 	exit(1);
 }
 
 int main(int argc, char **argv)
 {
-	char *midi_out_port_name = NULL;
 	char *config_filename = NULL;
 
 	for (int i = 1; i < argc; i++)
 	{
-		if (strcmp(argv[i], "--out") == 0)
-		{
-			if (++i == argc) usage(argv[0]);
-			midi_out_port_name = argv[i];
-		}
-		else if (strcmp(argv[i], "--config") == 0)
+		if (strcmp(argv[i], "--config") == 0)
 		{
 			if (++i == argc) usage(argv[0]);
 			config_filename = argv[i];
@@ -696,8 +698,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if ((midi_out_port_name == NULL) || (config_filename == NULL)) usage(argv[0]);
-	SyntinaDriver_t syntina_driver = SyntinaDriver_new(midi_out_port_name, config_filename);
+	if (config_filename == NULL) usage(argv[0]);
+	SyntinaDriver_t syntina_driver = SyntinaDriver_new(config_filename);
 	SyntinaDriver_run(syntina_driver);
 	SyntinaDriver_free(syntina_driver);
 }
